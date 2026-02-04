@@ -1,50 +1,43 @@
-from fastapi import FastAPI, HTTPException 
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from typing import Optional
-from supabase import create_client, Client
-import os
 from dotenv import load_dotenv
-from routes import users
+from routers import users, projects
+ 
+load_dotenv() 
 
-# Remove the broken SSL_CERT_FILE variable for this process
-os.environ.pop("SSL_CERT_FILE", None)
-os.environ.pop("REQUESTS_CA_BUNDLE", None) # Just in case this is also set
-
-load_dotenv()
-
-# Create FastAPI app 
-app = FastAPI( 
-	title = "Al Engineering",
-	description="API for Six—figure Al Engineering application", 
-	version="1.0.0"
+# Create FastAPI app
+app = FastAPI(
+    title="Six-Figure AI Engineering API",
+    description="Backend API for Six-Figure AI Engineering application",
+    version="1.0.0"
 )
 
-# Configure CORS 
+# Configure CORS
 app.add_middleware(
-	CORSMiddleware,
-  allow_origins=["http://localhost:3000"],
-  allow_credentials=True,
-  allow_methods=["*"],
-  allow_headers=["*"],
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-app.include_router(users.router)
 
+app.include_router(users.router) 
+app.include_router(projects.router) 
+
+
+# Health check endpoints
 @app.get("/")
 async def root():
-  return {"message": "Welcome to the Al Engineering API!"}
+    return {"message": "Six-Figure AI Engineering app is running!"}
 
 @app.get("/health")
 async def health_check():
-  return {"status": "Healthy", "message": "The API is running smoothly."}
+    return {
+        "status": "healthy",
+        "version": "1.0.0"
+    }
 
-@app.get("/user/{user_id}")
-async def get_user(user_id: int):
-  return {"user_id": user_id, "name": f"User {user_id}", "role": "Engineer"}
-
-  
 if __name__ == "__main__":
-  import uvicorn
-  uvicorn.run(app, host="0.0.0.0", port=8000, reload=True) 
- 
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
